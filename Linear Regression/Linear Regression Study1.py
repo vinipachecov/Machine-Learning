@@ -87,7 +87,7 @@ m = y.size
 
 
 #Add a column of ones to X (interception term)
-#it = ones(shape=(m,2))
+it = ones(shape=(m,2))
 it[:,1] = X
   
 #Initialize theta parameters and gradient descent parameters
