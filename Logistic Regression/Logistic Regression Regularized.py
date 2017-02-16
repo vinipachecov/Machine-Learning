@@ -15,6 +15,39 @@ import scipy.optimize as opt
 def sigmoid(Z):
     '''Compute the sigmoid function '''
     return 1.0 / (1.0 + np.exp( -1.0 * Z))
+##########################################
+def costReg(theta, X, y, learningRate):  
+    theta = np.matrix(theta)
+    X = np.matrix(X)
+    y = np.matrix(y)
+    first = np.multiply(-y, np.log(sigmoid(X * theta.T)))
+    second = np.multiply((1 - y), np.log(1 - sigmoid(X * theta.T)))
+    reg = (learningRate / 2 * len(X)) * np.sum(np.power(theta[:,1:theta.shape[1]], 2))
+    return np.sum(first - second) / (len(X)) + reg
+
+
+
+
+def gradientReg(theta, X, y, learningRate):  
+    theta = np.matrix(theta)
+    X = np.matrix(X)
+    y = np.matrix(y)
+
+    parameters = int(theta.ravel().shape[1])
+    grad = np.zeros(parameters)
+
+    error = sigmoid(X * theta.T) - y
+
+    for i in range(parameters):
+        term = np.multiply(error, X[:,i])
+
+        if (i == 0):
+            grad[i] = np.sum(term) / len(X)
+        else:
+            grad[i] = (np.sum(term) / len(X)) + ((learningRate / len(X)) * theta[:,i])
+
+    return grad
+###########################################
 
     
 def compute_cost(theta,X,y, learningRate):
@@ -32,29 +65,41 @@ def compute_cost(theta,X,y, learningRate):
     Z = X.dot(theta.T)
     
     hypothesis = sigmoid(Z)  
-    exp1 = (-y.dot(np.log(hypothesis)))
-    exp2 = ((1.0 - y).dot(np.log(1.0 - hypothesis)))    
-    J = (exp1  - exp2) / m 
+    exp1 = (-y.T.dot(np.log(hypothesis)))
+    exp2 = ((1.0 - y).T.dot(np.log(1.0 - hypothesis)))    
+    J = (exp1  - exp2).dot(1/m) 
         
     return J.sum() + reg.sum() 
 
-          
-def compute_grad(theta,X,y,learningRate):    
+
+
+def grad(theta,X,y,learningRate):    
     
-    theta = np.matrix(theta)
+    theta = theta.T          
     X = np.matrix(X)
     y = np.matrix(y)
-    m = y.size
-    theta0 = np.zeros(X.shape[1])  
-    reg = np.dot(learningRate / m, theta0)
+    m = y.shape[0]
+    theta0 = np.zeros(X.shape[1])      
+    theta0[1:] = theta[1:]    
+    theta = np.matrix(theta)    
+    theta0 = np.matrix(theta0)
+    
+    reg = np.dot(learningRate / m, theta)
     
     Z = X.dot(theta.T)    
     hypothesis = sigmoid(Z)      
     error = hypothesis - y    
-    grad =  ((1/m) * X.T.dot(error)).flatten() + reg
-    theta.shape = (3,) 
+    print(reg)
+    grad =  np.dot((X.T.dot(error).flatten()),1/m)  + reg
+                  
+#    theta.shape = (3,) 
     
-    return grad
+    return grad          
+    
+##
+def predict(theta, X):    
+    probability = sigmoid(X * theta.T)
+    return [1 if x >= 0.5 else 0 for x in probability]          
     
 ####################################
 ## Running settings
@@ -71,106 +116,54 @@ ax.legend()
 ax.set_xlabel('Test 1 Score')
 ax.set_ylabel('Test 2 Score')
 
-degree = 5
-
-x1 = data2['Test 1']
+degree = 5  
+x1 = data2['Test 1']  
 x2 = data2['Test 2']
 
-data2.insert(0,'Ones',1)
+data2.insert(3, 'Ones', 1)
 
-##inserting more features
-for i in range(1,degree):
-    for j in range(0,i):
-#        data2['F' + str(i) + str(j)] = np.power(x1,i-j) * np.power(x2,j)
-        data2.insert(1,'F'+str(i) + str(j),np.power(x1,i-j) * np.power(x2,j))
-        
+for i in range(1, degree):  
+    for j in range(0, i):
+        data2['F' + str(i) + str(j)] = np.power(x1, i-j) * np.power(x2, j)
 
-##setting up our parameters for cost and gradient calculation
-X = data2.iloc[:,:-1]
-y = data2.iloc[:, -1]
-theta = np.zeros(X.shape[1])
+data2.drop('Test 1', axis=1, inplace=True)  
+data2.drop('Test 2', axis=1, inplace=True)
+
+
+
+# set X and y (remember from above that we moved the label to column 0)
+cols = data2.shape[1]  
+X2 = data2.iloc[:,1:cols]  
+y2 = data2.iloc[:,0:1]
+
+# convert to numpy arrays and initalize the parameter array theta
+X2 = np.array(X2.values)  
+y2 = np.array(y2.values)  
+theta2 = np.zeros(11)
+
 learningRate = 1
 
-print( compute_cost(theta, X,y,learningRate= learningRate))
+costReg(theta2, X2, y2, learningRate)        
+result2 = opt.fmin_tnc(f=compute_cost,x0=theta2,fprime=grad,args=(X2,y2,learningRate))
+
+
+
+theta_min = np.matrix(result2[0])  
+predictions = predict(theta_min, X2)  
+correct = [1 if ((a == 1 and b == 1) or (a == 0 and b == 0)) else 0 for (a, b) in zip(predictions, y2)]  
+accuracy = (sum(map(int, correct)) % len(correct))  
+print ('accuracy = {0}%'.format(accuracy))
+
+
+#grad(theta2,X2,y2,learningRate)
+###########################################
+
+
+
+print( compute_cost(theta2, X2,y2,learningRate= lr))
+result = opt.fmin_tnc(func=compute_cost, x0=theta2,fprime=grad, args=(X2,y2,lr))
+print(result[0])
+opt.fmin_ncg(f=compute_cost,x0=theta2, fprime=grad, args=(X2,y2,lr))
         
 
-##############################################
-## Running settings
-#Normal Editor
-data= loadtxt('ex2data1.txt', delimiter=',')
 
-
-X = data[:, 0:2]
-y = data[:, -1]
-
-pos = where(y == 1)
-neg = where(y == 0)
-
-m,n = X.shape
-y.shape = (m,1)
-
-
-## + 1 interception term
-it = np.ones(shape=(m,n +1))
-##add intercept term to X, i.e it variable
-it[:,1:] = X
-
-##Initialize theta parameters
-theta = np.zeros(3)
-  
-## test functions
-print (compute_cost(theta,it,y))
-##compute cost should be at 0.693
-print("Gradient at initial theta")
-print (compute_grad(theta,it,y))
-##gradient for initial theta (0, 0 ,0 ) should be  [ -0.1,   -12.00921659, -11.26284221]
-
-
-
-##Uncomment for random theta values
-#theta = 0.1* np.random.randn(3)
-
-## fmin_tnc gets optimal values for alpha so we don't have to choose it randomly 
-## or by gut feeling
-result = opt.fmin_tnc(func=compute_cost, x0=theta, fprime=compute_grad, args=(it, y))  
-##First value returned is the optimal theta parameters for the model
-theta = result[0]
-
-#Plotting the decision boundary
-plot_x = array([min(it[:, 1]) - 2, max(it[:, 2]) + 2])
-plot_y = (- 1.0 / theta[2]) * (theta[1] * plot_x + theta[0])
-plot(plot_x, plot_y)
-legend(['Decision Boundary', 'Not admitted', 'Admitted'])
-#show()
-
-
-def predict(theta,X):
-    '''predict whether the label
-    is 0 or 1 using learned logistic
-    regression parameters'''
-    m,n = X.shape
-    p = zeros(shape=(m,1))
-    
-    h = sigmoid(X.dot(theta.T))
-    
-    for it in range(0,h.shape[0]):
-        if h[it] > 0.5:
-            p[it,0] = 1
-        else:
-            p[it,0] = 0
-    
-    return p
-
-p = predict(array(theta), it)
-print ('Train Accuracy: %f' % ((y[where(p == y)].size / float(y.size)) * 100.0))
-
-##VIsualizing data X[pos,0] -> first exam note (admitted)
-##VIsualizing data X[pos,1] -> second exam note (admitted)
-plt.scatter(X[pos, 0], X[pos, 1], marker='o', c='r')
-#Visualizing data[neg,0] -> first exam note (not admitted)
-#VIzualigin data[neg,1] -> second exam note (not admitted)
-plt.scatter(X[neg, 0], X[neg, 1], marker='x', c='g')
-plt.xlabel('Exam 1 Score')
-plt.ylabel('Exam 2 Score')
-plt.legend(['Not Admitted', 'Admitted'])
-plt.show()

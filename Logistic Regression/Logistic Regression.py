@@ -15,7 +15,7 @@ import scipy.optimize as opt
 
 def sigmoid(Z):
     '''Compute the sigmoid function '''
-    return 1.0 / (1.0 + e**( -1.0 * Z))
+    return 1.0 / (1.0 + np.exp( -1.0 * Z))
 
     
 def compute_cost(theta,X,y):
@@ -32,13 +32,29 @@ def compute_cost(theta,X,y):
         
     return J.sum()
 
-          
+
+def grad(theta,X,y,):    
+    
+        
+    X = np.matrix(X)
+    y = np.matrix(y)
+    m = y.size
+   # theta0 = np.zeros(X.shape[1])  
+    #reg = np.dot(learningRate / m, theta0)
+    
+    Z = X.dot(theta.T)    
+    hypothesis = sigmoid(Z)      
+    error = hypothesis - y    
+    grad =  ((1/m) * X.T.dot(error)).flatten()     
+    
+    return grad          
+
 def compute_grad(theta,X,y):    
     
     
     m = y.size
     theta.shape = (1, 3)    
-    grad = plt.zeros(3)    
+    grad = np.zeros(3)    
     Z = X.dot(theta.T)    
     hypothesis = sigmoid(Z)      
     error = hypothesis - y    
@@ -50,7 +66,7 @@ def compute_grad(theta,X,y):
 ####################################
 ## Running settings
 
-data= pd.loadtxt('ex2data1.txt', delimiter=',')
+data= np.loadtxt('ex2data1.txt', delimiter=',')
 
 
 X = data[:, 0:2]
@@ -75,7 +91,7 @@ theta = np.zeros(3)
 print (compute_cost(theta,it,y))
 ##compute cost should be at 0.693
 print("Gradient at initial theta")
-print (compute_grad(theta,it,y))
+print (grad(theta,it,y))
 ##gradient for initial theta (0, 0 ,0 ) should be  [ -0.1,   -12.00921659, -11.26284221]
 
 
@@ -85,7 +101,7 @@ print (compute_grad(theta,it,y))
 
 ## fmin_tnc gets optimal values for alpha so we don't have to choose it randomly 
 ## or by gut feeling
-result = opt.fmin_tnc(func=compute_cost, x0=theta, fprime=compute_grad, args=(it, y))  
+result = opt.fmin_tnc(func=compute_cost, x0=theta, fprime=grad, args=(it, y))  
 ##First value returned is the optimal theta parameters for the model
 theta = result[0]
 
