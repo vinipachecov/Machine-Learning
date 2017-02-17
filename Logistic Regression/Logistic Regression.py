@@ -33,22 +33,6 @@ def compute_cost(theta,X,y):
     return J.sum()
 
 
-def grad(theta,X,y,):    
-    
-        
-    X = np.matrix(X)
-    y = np.matrix(y)
-    m = y.size
-   # theta0 = np.zeros(X.shape[1])  
-    #reg = np.dot(learningRate / m, theta0)
-    
-    Z = X.dot(theta.T)    
-    hypothesis = sigmoid(Z)      
-    error = hypothesis - y    
-    grad =  ((1/m) * X.T.dot(error)).flatten()     
-    
-    return grad          
-
 def compute_grad(theta,X,y):    
     
     
