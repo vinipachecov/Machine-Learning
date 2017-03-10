@@ -25,7 +25,7 @@ def y2indicator(y, K):
 X , Y = get_data()
 X,  Y = shuffle(X, Y)
 Y = Y.astype(np.int32)
-M = 5 
+M = 5
 D = X.shape[1]
 K = len(set(Y))
 
@@ -52,6 +52,7 @@ def softmax(a):
     expA = np.exp(a)
     return expA / expA.sum(axis=1, keepdims=True)
 
+#Propagation to allow us to predict
 def forward(X, W1, b1, W2, b2):
     Z = np.tanh(X.dot(W1) + b1)
     return softmax(Z.dot(W2) + b2), Z
@@ -63,6 +64,7 @@ def predict(P_Y_given_X):
 def classification_rate(Y, P):
     return np.mean(Y == P)
 
+#Cost Function
 def cross_entropy(T, pY):
     return -np.mean(T*np.log(pY))
 

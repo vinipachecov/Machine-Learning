@@ -16,6 +16,7 @@ X,Y = get_data()
 
 ## 5 hidden units
 M = 5
+#input units
 D = X.shape[1]
 K = len(set(Y))
 w1 = np.random.randn(D,M)
