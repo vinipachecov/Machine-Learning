@@ -1,10 +1,4 @@
-Relevant Course URLs:
+Code from Lazy Programer
 
-https://www.udemy.com/data-science-logistic-regression-in-python
-https://www.udemy.com/data-science-deep-learning-in-python
-https://www.udemy.com/data-science-deep-learning-in-theano-tensorflow
-https://www.udemy.com/deep-learning-convolutional-neural-networks-theano-tensorflow
+https://github.com/lazyprogrammer/facial-expression-recognition
 
-Data:
-
-https://www.kaggle.com/c/challenges-in-representation-learning-facial-expression-recognition-challenge
