@@ -16,6 +16,7 @@ class ANN(object):
         # Tvalid = y2indicator(Yvalid)
         X, Y = X[:-1000], Y[:-1000]
 
+        #variables setup and normalization 
         N, D = X.shape
         K = len(set(Y))
         T = y2indicator(Y)
@@ -24,6 +25,8 @@ class ANN(object):
         self.W2 = np.random.randn(self.M, K) / np.sqrt(self.M + K)
         self.b2 = np.zeros(K)
 
+
+        #main loop 
         costs = []
         best_validation_error = 1
         for i in xrange(epochs):
