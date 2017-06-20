@@ -36,7 +36,7 @@ def main():
     Ytest_ind = y2indicator(Ytest)
 
     N, D = Xtrain.shape
-    batch_sz = 500
+    batch_sz = 500  
     n_batches = N / batch_sz
 
     M = 300
