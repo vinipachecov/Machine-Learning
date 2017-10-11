@@ -1,5 +1,5 @@
 from __future__ import print_function, division
-from builtins import range
+
 # Note: you may need to update your version of future
 # sudo pip install -U future
 
@@ -68,7 +68,7 @@ def get_spiral():
 
 def get_transformed_data():
     print("Reading in and transforming data...")
-    df = pd.read_csv('../large_files/train.csv')
+    df = pd.read_csv('/home/vinicius/repos/resources/train.csv')
     data = df.as_matrix().astype(np.float32)
     np.random.shuffle(data)
 
@@ -86,7 +86,7 @@ def get_transformed_data():
 
 def get_normalized_data():
     print("Reading in and transforming data...")
-    df = pd.read_csv('../large_files/train.csv')
+    df = pd.read_csv('/home/vinicius/repos/resources/train.csv')
     data = df.as_matrix().astype(np.float32)
     np.random.shuffle(data)
     X = data[:, 1:]
@@ -200,7 +200,7 @@ def benchmark_full():
         p_y_test = forward(Xtest, W, b)
         lltest = cost(p_y_test, Ytest_ind)
         LLtest.append(lltest)
-        
+
         err = error_rate(p_y_test, Ytest)
         CRtest.append(err)
 
@@ -284,4 +284,3 @@ def benchmark_pca():
 if __name__ == '__main__':
     benchmark_pca()
     # benchmark_full()
-
